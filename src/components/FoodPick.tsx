@@ -166,7 +166,6 @@ export function BarcodeScan({ onUse }: { onUse: (p: Picked) => void }) {
       cancelled = true
       stopRef.current()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [food])
 
   if (food) return <PortionPicker food={food} onUse={onUse} onBack={() => setFood(null)} />

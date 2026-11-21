@@ -1,54 +1,37 @@
-# React + TypeScript + Vite
+# Nibbles & Bits
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A private calorie tracker for iPhone, built as an installable web app (PWA).
 
-Currently, two official plugins are available:
+**Live app:** https://stanmcman.github.io/jen-calories/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Everything is stored on the phone (IndexedDB). No accounts, no server.
+- AI photo/text/recipe estimates use the Anthropic API with the user's own key (entered in the app, never stored here).
+- Barcode scanning uses Open Food Facts; food search uses USDA FoodData Central.
 
-## Expanding the ESLint configuration
+## Making changes
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The easiest way: open Claude Code, point it at this repository, and describe the change you want.
+Every push to `main` rebuilds and republishes the app automatically (see `.github/workflows/deploy.yml`);
+the phone picks up the new version the next time the app is opened (sometimes it takes a second open).
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Running it on a computer
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open the address it prints. `npm run build` makes the production version in `dist/`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Where things are
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+| Path | What it is |
+|---|---|
+| `src/screens/` | Each screen (Today/day view, History, Weight, More, Recipes, Favorites, settings) |
+| `src/components/` | Shared pieces (add-food sheet, progress ring, weight chart, scanner) |
+| `src/lib/calc.ts` | Goal calculator (Mifflin-St Jeor, activity factors, safe minimums) |
+| `src/lib/ai.ts` | Claude calls, prompts, photo compression |
+| `src/lib/foods.ts` | Open Food Facts and USDA lookups |
+| `src/lib/backup.ts` | Backup and restore |
+| `src/db.ts` | The on-device database |
+| `src/index.css` | Colors, fonts, and layout |

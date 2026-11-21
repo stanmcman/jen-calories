@@ -12,6 +12,7 @@ export default function More({
   onOpenAI,
   onOpenRecipes,
   onOpenFoodDb,
+  onOpenBackup,
 }: {
   profile: Profile
   onEditGoal: () => void
@@ -19,7 +20,9 @@ export default function More({
   onOpenAI: () => void
   onOpenRecipes: () => void
   onOpenFoodDb: () => void
+  onOpenBackup: () => void
 }) {
+  const lastBackup = useLiveQuery(() => getKV<number>('lastBackup'))
   const recipeCount = useLiveQuery(() => db.recipes.count()) ?? 0
   const hasKey = useLiveQuery(async () => !!(await getKV<string>('anthropicKey'))) ?? false
   const favCount = useLiveQuery(() => db.favorites.count()) ?? 0
@@ -99,7 +102,25 @@ export default function More({
         <p className="note">System follows your iPhone's setting, switching to dark at night if you've set it to.</p>
       </section>
 
-      <p className="note">Backups will appear here in the final stage.</p>
+      <section className="card">
+        <div className="list">
+          <button className="list-item" onClick={onOpenBackup}>
+            <div className="grow">
+              <h3>Backup &amp; restore</h3>
+              <div className="muted small">
+                {lastBackup
+                  ? `Last backup ${new Date(lastBackup).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                  : 'Not backed up yet'}
+              </div>
+            </div>
+            <span className="chev">›</span>
+          </button>
+        </div>
+      </section>
+
+      <p className="note" style={{ textAlign: 'center' }}>
+        Nibbles &amp; Bits · your data stays on this phone
+      </p>
     </div>
   )
 }

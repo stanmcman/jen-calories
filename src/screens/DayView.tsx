@@ -7,6 +7,7 @@ import Ring from '../components/Ring'
 import EntrySheet from '../components/EntrySheet'
 import EntryRow from '../components/EntryRow'
 import { CameraIcon } from '../components/icons'
+import BackupNudge from '../components/BackupNudge'
 
 type Editing = { entry?: Entry; meal: Meal; photo?: boolean } | null
 
@@ -76,6 +77,8 @@ export default function DayView({
           </div>
         </div>
       </section>
+
+      {isToday && !onBack && <BackupNudge />}
 
       {MEALS.map((meal) => {
         const items = entries.filter((e) => e.meal === meal)

@@ -88,7 +88,7 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
     setShowSuggest(false)
   }
 
-  function usePicked(p: Picked, from: 'barcode' | 'search') {
+  function applyPicked(p: Picked, from: 'barcode' | 'search') {
     setDraft(null)
     setDescription(p.description)
     setCalories(p.calories)
@@ -211,8 +211,8 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
         />
       )}
 
-      {mode === 'scan' && <BarcodeScan onUse={(p) => usePicked(p, 'barcode')} />}
-      {mode === 'search' && <FoodSearch onUse={(p) => usePicked(p, 'search')} />}
+      {mode === 'scan' && <BarcodeScan onUse={(p) => applyPicked(p, 'barcode')} />}
+      {mode === 'search' && <FoodSearch onUse={(p) => applyPicked(p, 'search')} />}
 
       {/* ---------- Photo ---------- */}
       <input
