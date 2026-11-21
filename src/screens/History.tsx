@@ -9,6 +9,12 @@ function weekStart(date: string) {
   return addDays(date, -parseISO(date).getDay())
 }
 
+/** "Yogurt, Coffee, Sandwich +2 more" */
+function preview(list: string[]) {
+  const shown = list.slice(0, 3).map((x) => (x.length > 28 ? x.slice(0, 27).trimEnd() + '…' : x))
+  return shown.join(', ') + (list.length > 3 ? ` +${list.length - 3} more` : '')
+}
+
 const short = (d: string) => parseISO(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 
 export default function History({
@@ -24,10 +30,17 @@ export default function History({
   const today = todayISO()
   const [week, setWeek] = useState(() => weekStart(today))
 
-  const totals = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const e of entries) m.set(e.date, (m.get(e.date) ?? 0) + e.calories)
-    return m
+  const { totals, foods, photos } = useMemo(() => {
+    const totals = new Map<string, number>()
+    const foods = new Map<string, string[]>()
+    const photos = new Map<string, number>()
+    const sorted = [...entries].sort((a, b) => a.createdAt - b.createdAt)
+    for (const e of sorted) {
+      totals.set(e.date, (totals.get(e.date) ?? 0) + e.calories)
+      foods.set(e.date, [...(foods.get(e.date) ?? []), e.description])
+      if (e.photo) photos.set(e.date, (photos.get(e.date) ?? 0) + 1)
+    }
+    return { totals, foods, photos }
   }, [entries])
 
   const goalOn = (d: string) => goalForDate(goalHistory, d, fallbackGoal)
@@ -135,7 +148,9 @@ export default function History({
                       </div>
                       <div className="muted small num">
                         {fmt(t)} of {fmt(g)} cal
+                        {photos.get(d) ? ` · ${photos.get(d)} photo${photos.get(d) === 1 ? '' : 's'}` : ''}
                       </div>
+                      <div className="day-foods">{preview(foods.get(d) ?? [])}</div>
                     </div>
                     {over > 0 ? (
                       <span className="pill warn num">+{fmt(over)} over</span>

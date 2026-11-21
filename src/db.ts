@@ -32,6 +32,8 @@ export interface Entry {
   carbs?: number
   fat?: number
   source: 'manual' | 'ai-text' | 'ai-photo' | 'favorite' | 'recipe' | 'barcode' | 'search'
+  /** Small compressed copy of the meal photo (JPEG), kept with the entry for History. */
+  photo?: Blob
   createdAt: number
 }
 

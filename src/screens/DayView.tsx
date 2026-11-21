@@ -5,6 +5,7 @@ import { addDays, fmt, parseISO, prettyDate, todayISO } from '../lib/dates'
 import { MEALS, MEAL_LABEL, mealForNow } from '../lib/meals'
 import Ring from '../components/Ring'
 import EntrySheet from '../components/EntrySheet'
+import EntryRow from '../components/EntryRow'
 
 type Editing = { entry?: Entry; meal: Meal } | null
 
@@ -92,10 +93,7 @@ export default function DayView({
             {items.length > 0 && (
               <div className="list">
                 {items.map((e) => (
-                  <button key={e.id} className="list-item entry" onClick={() => setEditing({ entry: e, meal })}>
-                    <span className="grow entry-desc">{e.description}</span>
-                    <span className="num entry-cal">{fmt(e.calories)}</span>
-                  </button>
+                  <EntryRow key={e.id} entry={e} onClick={() => setEditing({ entry: e, meal })} />
                 ))}
               </div>
             )}

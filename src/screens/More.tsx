@@ -1,11 +1,20 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { getKV, type Profile } from '../db'
+import { db, getKV, type Profile } from '../db'
 import { ACTIVITY, computeGoal } from '../lib/calc'
 import { fmt } from '../lib/dates'
 import { saveTheme, type ThemePref } from '../lib/theme'
 import { Seg } from '../components/ui'
 
-export default function More({ profile, onEditGoal }: { profile: Profile; onEditGoal: () => void }) {
+export default function More({
+  profile,
+  onEditGoal,
+  onOpenFavorites,
+}: {
+  profile: Profile
+  onEditGoal: () => void
+  onOpenFavorites: () => void
+}) {
+  const favCount = useLiveQuery(() => db.favorites.count()) ?? 0
   const g = computeGoal(profile)
   const theme = useLiveQuery(async () => (await getKV<ThemePref>('theme')) ?? 'system') ?? 'system'
   return (
@@ -31,6 +40,15 @@ export default function More({ profile, onEditGoal }: { profile: Profile; onEdit
             </div>
             <span className="chev">›</span>
           </button>
+          <button className="list-item" onClick={onOpenFavorites}>
+            <div className="grow">
+              <h3>Favorites</h3>
+              <div className="muted small">
+                {favCount === 0 ? 'Foods you eat often' : `${favCount} saved food${favCount === 1 ? '' : 's'}`}
+              </div>
+            </div>
+            <span className="chev">›</span>
+          </button>
         </div>
       </section>
 
@@ -49,7 +67,7 @@ export default function More({ profile, onEditGoal }: { profile: Profile; onEdit
         <p className="note">System follows your iPhone's setting, switching to dark at night if you've set it to.</p>
       </section>
 
-      <p className="note">Favorites, recipes, AI keys and backups will appear here in later stages.</p>
+      <p className="note">Recipes, AI keys and backups will appear here in later stages.</p>
     </div>
   )
 }

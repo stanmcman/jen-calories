@@ -10,6 +10,7 @@ import InstallGuide from './screens/InstallGuide'
 import DayView from './screens/DayView'
 import History from './screens/History'
 import More from './screens/More'
+import Favorites from './screens/Favorites'
 
 const isStandalone = () =>
   window.matchMedia('(display-mode: standalone)').matches ||
@@ -27,6 +28,7 @@ export default function App() {
   const [today, setToday] = useState(todayISO())
   const [todayTabDate, setTodayTabDate] = useState(today)
   const [historyDay, setHistoryDay] = useState<string | null>(null)
+  const [moreView, setMoreView] = useState<'favorites' | null>(null)
 
   useEffect(() => {
     requestPersistence()
@@ -45,7 +47,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [tab, editingGoal, historyDay])
+  }, [tab, editingGoal, historyDay, moreView])
 
   if (profile === undefined) return <div className="app" />
 
@@ -78,6 +80,7 @@ export default function App() {
   const switchTab = (t: Tab) => {
     if (t === tab && t === 'today') setTodayTabDate(today) // tapping Today again jumps back to today
     if (t === 'history') setHistoryDay(null)
+    if (t === 'more') setMoreView(null)
     setTab(t)
   }
 
@@ -104,7 +107,12 @@ export default function App() {
           <History goalHistory={goalHistory} fallbackGoal={currentGoal} onOpenDay={setHistoryDay} />
         ))}
       {tab === 'weight' && <Placeholder title="Weight" stage="e" />}
-      {tab === 'more' && <More profile={profile} onEditGoal={() => setEditingGoal(true)} />}
+      {tab === 'more' &&
+        (moreView === 'favorites' ? (
+          <Favorites onBack={() => setMoreView(null)} />
+        ) : (
+          <More profile={profile} onEditGoal={() => setEditingGoal(true)} onOpenFavorites={() => setMoreView('favorites')} />
+        ))}
       <TabBar tab={tab} onChange={switchTab} />
     </div>
   )
