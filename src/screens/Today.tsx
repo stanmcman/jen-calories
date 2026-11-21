@@ -18,11 +18,11 @@ export default function Today({ profile }: { profile: Profile }) {
         <Ring eaten={eaten} goal={goal} />
         <div className="row between" style={{ padding: '0 8px' }}>
           <div>
-            <div className="eyebrow">Eaten</div>
+            <div className="label">Eaten</div>
             <div className="num" style={{ fontWeight: 750, fontSize: 20 }}>{fmt(eaten)}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div className="eyebrow">Goal</div>
+            <div className="label">Goal</div>
             <div className="num" style={{ fontWeight: 750, fontSize: 20 }}>{fmt(goal)}</div>
           </div>
         </div>
