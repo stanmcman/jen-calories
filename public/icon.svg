@@ -1,27 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3"/><feColorMatrix values="0 0 0 0 0.45 0 0 0 0 0.36 0 0 0 0 0.3 0 0 0 0.22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-    <filter id="bleed" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="11"/><feDisplacementMap in="SourceGraphic" scale="26"/><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="edge" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter>
-    <radialGradient id="cookie" cx="0.4" cy="0.35" r="0.75"><stop offset="0" stop-color="#f6cf9a"/><stop offset="0.7" stop-color="#e7a96f"/><stop offset="1" stop-color="#d68e5c"/></radialGradient>
-    <mask id="bite"><rect width="512" height="512" fill="#fff"/><circle cx="366" cy="150" r="58" fill="#000"/><circle cx="402" cy="222" r="44" fill="#000"/><circle cx="316" cy="104" r="40" fill="#000"/></mask>
+    <radialGradient id="bg" cx="0.3" cy="0.2" r="1"><stop offset="0" stop-color="#2f2b3d"/><stop offset="1" stop-color="#1c1a26"/></radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efb39a"/><stop offset="0.5" stop-color="#e07f8a"/><stop offset="1" stop-color="#a98fd0"/></linearGradient>
+    <filter id="brush" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="10"/><feGaussianBlur stdDeviation="0.8"/></filter>
+    <filter id="wash" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="9"/><feDisplacementMap in="SourceGraphic" scale="40"/><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="2"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0"/></filter>
   </defs>
-  <rect width="512" height="512" fill="#fbf4ea"/>
-  <g filter="url(#bleed)" opacity="0.85">
-    <circle cx="120" cy="110" r="190" fill="#efa98a" opacity="0.55"/>
-    <circle cx="430" cy="420" r="210" fill="#ab9fd1" opacity="0.5"/>
-    <circle cx="90" cy="440" r="150" fill="#8fb2d6" opacity="0.4"/>
-    <circle cx="440" cy="90" r="120" fill="#d9767a" opacity="0.35"/>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="150" cy="120" r="150" fill="#e07f8a" opacity="0.16" filter="url(#wash)"/>
+  <circle cx="420" cy="430" r="170" fill="#8f86c8" opacity="0.16" filter="url(#wash)"/>
+  <g filter="url(#brush)">
+    <circle cx="256" cy="256" r="150" fill="none" stroke="url(#ring)" stroke-width="30" stroke-linecap="round" stroke-dasharray="800 1000" transform="rotate(-62 256 256)" opacity="0.95"/>
   </g>
-  <g filter="url(#edge)">
-    <circle cx="256" cy="270" r="160" fill="url(#cookie)" mask="url(#bite)"/>
-    <circle cx="256" cy="270" r="160" fill="none" stroke="#c07a4e" stroke-width="4" opacity="0.5" mask="url(#bite)"/>
-    <circle cx="204" cy="228" r="21" fill="#5b3a3a" opacity="0.85"/>
-    <circle cx="282" cy="322" r="18" fill="#5b3a3a" opacity="0.85"/>
-    <circle cx="186" cy="330" r="14" fill="#5b3a3a" opacity="0.85"/>
-    <circle cx="300" cy="236" r="12" fill="#5b3a3a" opacity="0.85"/>
-    <circle cx="424" cy="120" r="12" fill="#e0a06e"/>
-    <circle cx="448" cy="170" r="8" fill="#e0a06e"/>
-  </g>
-  <rect width="512" height="512" fill="#fff" filter="url(#paper)"/>
+  <text x="256" y="292" text-anchor="middle" font-family="Fraunces" font-size="104" font-weight="500" letter-spacing="2" fill="#f3eee8" style="font-variation-settings:'SOFT' 100">N<tspan font-weight="300" font-size="88" dx="2" dy="-2" fill="#e9a9a6">&amp;</tspan><tspan dx="2" dy="2">B</tspan></text>
+  <rect width="512" height="512" filter="url(#grain)"/>
 </svg>

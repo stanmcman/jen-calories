@@ -3,6 +3,7 @@ import { db, setKV, type Activity, type GoalType, type Profile, type Sex } from 
 import { ACTIVITY, PACES, computeGoal, defaultPace } from '../lib/calc'
 import { fmt, todayISO } from '../lib/dates'
 import { NumberField, Options, Seg } from '../components/ui'
+import { recordGoal } from '../lib/goals'
 
 type Draft = {
   sex: Sex
@@ -68,8 +69,9 @@ export default function GoalSetup({
     if (!profile) return
     setSaving(true)
     await setKV('profile', profile)
-    // Record the weight as a weigh-in for today if it's new or changed.
     const today = todayISO()
+    await recordGoal(today, computeGoal(profile).goal)
+    // Record the weight as a weigh-in for today if it's new or changed.
     const existing = await db.weights.where('date').equals(today).first()
     if (!existing) {
       const last = await db.weights.orderBy('date').last()

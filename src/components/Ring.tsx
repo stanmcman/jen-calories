@@ -2,7 +2,17 @@ import { useId } from 'react'
 import { fmt } from '../lib/dates'
 
 /** Progress ring: calories eaten vs. goal, painted like a watercolor brush stroke. */
-export default function Ring({ eaten, goal, size = 236 }: { eaten: number; goal: number; size?: number }) {
+export default function Ring({
+  eaten,
+  goal,
+  size = 236,
+  isToday = true,
+}: {
+  eaten: number
+  goal: number
+  size?: number
+  isToday?: boolean
+}) {
   const id = useId().replace(/:/g, '')
   const stroke = 20
   const r = (size - stroke - 12) / 2
@@ -18,21 +28,21 @@ export default function Ring({ eaten, goal, size = 236 }: { eaten: number; goal:
           <linearGradient id={`g${id}`} x1="0" y1="0" x2="1" y2="1">
             {over ? (
               <>
-                <stop offset="0" stopColor="#e9b867" />
-                <stop offset="1" stopColor="#d98a4e" />
+                <stop offset="0" style={{ stopColor: 'var(--warn)' }} stopOpacity={0.7} />
+                <stop offset="1" style={{ stopColor: 'var(--warn)' }} />
               </>
             ) : (
               <>
-                <stop offset="0" stopColor="#efa98a" />
-                <stop offset="0.5" stopColor="#d9767a" />
-                <stop offset="1" stopColor="#ab7fb8" />
+                <stop offset="0" style={{ stopColor: 'var(--ring-1)' }} />
+                <stop offset="0.5" style={{ stopColor: 'var(--ring-2)' }} />
+                <stop offset="1" style={{ stopColor: 'var(--ring-3)' }} />
               </>
             )}
           </linearGradient>
           {/* Rough, bleeding edges like pigment on paper */}
           <filter id={`p${id}`} x="-10%" y="-10%" width="120%" height="120%">
             <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="7" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
             <feGaussianBlur stdDeviation="0.6" />
           </filter>
         </defs>
@@ -64,7 +74,7 @@ export default function Ring({ eaten, goal, size = 236 }: { eaten: number; goal:
       >
         <span className="big-number">{fmt(Math.abs(remaining))}</span>
         <span style={{ fontFamily: 'var(--font-hand)', fontSize: 24, color: 'var(--muted)', lineHeight: 1.1 }}>
-          {over ? 'over goal' : 'left today'}
+          {over ? 'over goal' : isToday ? 'left today' : 'under goal'}
         </span>
       </div>
     </div>

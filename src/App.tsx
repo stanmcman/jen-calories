@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, requestPersistence, type Profile } from './db'
+import { db, getKV, requestPersistence, type Profile } from './db'
+import { computeGoal } from './lib/calc'
+import { goalForDate, type GoalPoint } from './lib/goals'
+import { todayISO } from './lib/dates'
 import TabBar, { type Tab } from './components/TabBar'
 import GoalSetup from './screens/GoalSetup'
 import InstallGuide from './screens/InstallGuide'
-import Today from './screens/Today'
+import DayView from './screens/DayView'
+import History from './screens/History'
 import More from './screens/More'
 
 const isStandalone = () =>
@@ -16,17 +20,32 @@ const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent)
 export default function App() {
   // `undefined` while loading, `null` when there's no profile yet.
   const profile = useLiveQuery(async () => ((await db.kv.get('profile'))?.value as Profile | undefined) ?? null)
+  const goalHistory = useLiveQuery(() => getKV<GoalPoint[]>('goalHistory'))
   const [tab, setTab] = useState<Tab>('today')
   const [editingGoal, setEditingGoal] = useState(false)
   const [skipInstall, setSkipInstall] = useState(false)
+  const [today, setToday] = useState(todayISO())
+  const [todayTabDate, setTodayTabDate] = useState(today)
+  const [historyDay, setHistoryDay] = useState<string | null>(null)
 
   useEffect(() => {
     requestPersistence()
+    // If the app is left open overnight, roll over to the new day when it comes back.
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return
+      const t = todayISO()
+      setToday((prev) => {
+        if (prev !== t) setTodayTabDate((cur) => (cur === prev ? t : cur))
+        return t
+      })
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [])
 
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [tab, editingGoal])
+  }, [tab, editingGoal, historyDay])
 
   if (profile === undefined) return <div className="app" />
 
@@ -53,13 +72,40 @@ export default function App() {
     )
   }
 
+  const currentGoal = computeGoal(profile).goal
+  const goalOn = (d: string) => goalForDate(goalHistory, d, currentGoal)
+
+  const switchTab = (t: Tab) => {
+    if (t === tab && t === 'today') setTodayTabDate(today) // tapping Today again jumps back to today
+    if (t === 'history') setHistoryDay(null)
+    setTab(t)
+  }
+
   return (
     <div className="app">
-      {tab === 'today' && <Today profile={profile} />}
-      {tab === 'history' && <Placeholder title="History" stage="b" />}
+      {tab === 'today' && (
+        <DayView
+          key={todayTabDate}
+          date={todayTabDate}
+          goal={goalOn(todayTabDate)}
+          onChangeDate={(d) => setTodayTabDate(d > today ? today : d)}
+        />
+      )}
+      {tab === 'history' &&
+        (historyDay ? (
+          <DayView
+            key={historyDay}
+            date={historyDay}
+            goal={goalOn(historyDay)}
+            onBack={() => setHistoryDay(null)}
+            onChangeDate={(d) => setHistoryDay(d > today ? today : d)}
+          />
+        ) : (
+          <History goalHistory={goalHistory} fallbackGoal={currentGoal} onOpenDay={setHistoryDay} />
+        ))}
       {tab === 'weight' && <Placeholder title="Weight" stage="e" />}
       {tab === 'more' && <More profile={profile} onEditGoal={() => setEditingGoal(true)} />}
-      <TabBar tab={tab} onChange={setTab} />
+      <TabBar tab={tab} onChange={switchTab} />
     </div>
   )
 }
