@@ -12,6 +12,7 @@ import History from './screens/History'
 import More from './screens/More'
 import Favorites from './screens/Favorites'
 import AISettings from './screens/AISettings'
+import Weight from './screens/Weight'
 
 const isStandalone = () =>
   window.matchMedia('(display-mode: standalone)').matches ||
@@ -107,7 +108,7 @@ export default function App() {
         ) : (
           <History goalHistory={goalHistory} fallbackGoal={currentGoal} onOpenDay={setHistoryDay} />
         ))}
-      {tab === 'weight' && <Placeholder title="Weight" stage="e" />}
+      {tab === 'weight' && <Weight profile={profile} />}
       {tab === 'more' &&
         (moreView === 'favorites' ? (
           <Favorites onBack={() => setMoreView(null)} />
@@ -122,17 +123,6 @@ export default function App() {
           />
         ))}
       <TabBar tab={tab} onChange={switchTab} />
-    </div>
-  )
-}
-
-function Placeholder({ title, stage }: { title: string; stage: string }) {
-  return (
-    <div className="screen fade-in">
-      <div className="header">
-        <h1>{title}</h1>
-      </div>
-      <section className="card flat muted small">Coming in stage ({stage}).</section>
     </div>
   )
 }
