@@ -6,8 +6,9 @@ import { MEALS, MEAL_LABEL, mealForNow } from '../lib/meals'
 import Ring from '../components/Ring'
 import EntrySheet from '../components/EntrySheet'
 import EntryRow from '../components/EntryRow'
+import { CameraIcon } from '../components/icons'
 
-type Editing = { entry?: Entry; meal: Meal } | null
+type Editing = { entry?: Entry; meal: Meal; photo?: boolean } | null
 
 export default function DayView({
   date,
@@ -102,13 +103,28 @@ export default function DayView({
       })}
 
       {!onBack && (
-        <button className="fab" onClick={() => setEditing({ meal: isToday ? mealForNow() : 'snack' })}>
-          <span aria-hidden>+</span> Add food
-        </button>
+        <div className="fab-row">
+          <button
+            className="fab fab-cam"
+            aria-label="Add food from a photo"
+            onClick={() => setEditing({ meal: isToday ? mealForNow() : 'snack', photo: true })}
+          >
+            <CameraIcon />
+          </button>
+          <button className="fab" onClick={() => setEditing({ meal: isToday ? mealForNow() : 'snack' })}>
+            <span aria-hidden>+</span> Add food
+          </button>
+        </div>
       )}
 
       {editing && (
-        <EntrySheet entry={editing.entry} date={date} meal={editing.meal} onClose={() => setEditing(null)} />
+        <EntrySheet
+          entry={editing.entry}
+          date={date}
+          meal={editing.meal}
+          startWith={editing.photo ? 'photo' : 'describe'}
+          onClose={() => setEditing(null)}
+        />
       )}
     </div>
   )

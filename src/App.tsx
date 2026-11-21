@@ -11,6 +11,7 @@ import DayView from './screens/DayView'
 import History from './screens/History'
 import More from './screens/More'
 import Favorites from './screens/Favorites'
+import AISettings from './screens/AISettings'
 
 const isStandalone = () =>
   window.matchMedia('(display-mode: standalone)').matches ||
@@ -28,7 +29,7 @@ export default function App() {
   const [today, setToday] = useState(todayISO())
   const [todayTabDate, setTodayTabDate] = useState(today)
   const [historyDay, setHistoryDay] = useState<string | null>(null)
-  const [moreView, setMoreView] = useState<'favorites' | null>(null)
+  const [moreView, setMoreView] = useState<'favorites' | 'ai' | null>(null)
 
   useEffect(() => {
     requestPersistence()
@@ -110,8 +111,15 @@ export default function App() {
       {tab === 'more' &&
         (moreView === 'favorites' ? (
           <Favorites onBack={() => setMoreView(null)} />
+        ) : moreView === 'ai' ? (
+          <AISettings onBack={() => setMoreView(null)} />
         ) : (
-          <More profile={profile} onEditGoal={() => setEditingGoal(true)} onOpenFavorites={() => setMoreView('favorites')} />
+          <More
+            profile={profile}
+            onEditGoal={() => setEditingGoal(true)}
+            onOpenFavorites={() => setMoreView('favorites')}
+            onOpenAI={() => setMoreView('ai')}
+          />
         ))}
       <TabBar tab={tab} onChange={switchTab} />
     </div>

@@ -9,11 +9,14 @@ export default function More({
   profile,
   onEditGoal,
   onOpenFavorites,
+  onOpenAI,
 }: {
   profile: Profile
   onEditGoal: () => void
   onOpenFavorites: () => void
+  onOpenAI: () => void
 }) {
+  const hasKey = useLiveQuery(async () => !!(await getKV<string>('anthropicKey'))) ?? false
   const favCount = useLiveQuery(() => db.favorites.count()) ?? 0
   const g = computeGoal(profile)
   const theme = useLiveQuery(async () => (await getKV<ThemePref>('theme')) ?? 'system') ?? 'system'
@@ -49,6 +52,14 @@ export default function More({
             </div>
             <span className="chev">›</span>
           </button>
+          <button className="list-item" onClick={onOpenAI}>
+            <div className="grow">
+              <h3>AI estimates</h3>
+              <div className="muted small">{hasKey ? 'On · photo and text estimates' : 'Off · add an API key to turn on'}</div>
+            </div>
+            <span className={`pill${hasKey ? ' good' : ''}`}>{hasKey ? 'On' : 'Off'}</span>
+            <span className="chev">›</span>
+          </button>
         </div>
       </section>
 
@@ -67,7 +78,7 @@ export default function More({
         <p className="note">System follows your iPhone's setting, switching to dark at night if you've set it to.</p>
       </section>
 
-      <p className="note">Recipes, AI keys and backups will appear here in later stages.</p>
+      <p className="note">Recipes and backups will appear here in later stages.</p>
     </div>
   )
 }
