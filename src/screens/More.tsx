@@ -10,12 +10,17 @@ export default function More({
   onEditGoal,
   onOpenFavorites,
   onOpenAI,
+  onOpenRecipes,
+  onOpenFoodDb,
 }: {
   profile: Profile
   onEditGoal: () => void
   onOpenFavorites: () => void
   onOpenAI: () => void
+  onOpenRecipes: () => void
+  onOpenFoodDb: () => void
 }) {
+  const recipeCount = useLiveQuery(() => db.recipes.count()) ?? 0
   const hasKey = useLiveQuery(async () => !!(await getKV<string>('anthropicKey'))) ?? false
   const favCount = useLiveQuery(() => db.favorites.count()) ?? 0
   const g = computeGoal(profile)
@@ -52,12 +57,28 @@ export default function More({
             </div>
             <span className="chev">›</span>
           </button>
+          <button className="list-item" onClick={onOpenRecipes}>
+            <div className="grow">
+              <h3>Recipes</h3>
+              <div className="muted small">
+                {recipeCount === 0 ? 'Calories per serving for home cooking' : `${recipeCount} saved recipe${recipeCount === 1 ? '' : 's'}`}
+              </div>
+            </div>
+            <span className="chev">›</span>
+          </button>
           <button className="list-item" onClick={onOpenAI}>
             <div className="grow">
               <h3>AI estimates</h3>
               <div className="muted small">{hasKey ? 'On · photo and text estimates' : 'Off · add an API key to turn on'}</div>
             </div>
             <span className={`pill${hasKey ? ' good' : ''}`}>{hasKey ? 'On' : 'Off'}</span>
+            <span className="chev">›</span>
+          </button>
+          <button className="list-item" onClick={onOpenFoodDb}>
+            <div className="grow">
+              <h3>Food databases</h3>
+              <div className="muted small">Barcode scanning and food search</div>
+            </div>
             <span className="chev">›</span>
           </button>
         </div>
@@ -78,7 +99,7 @@ export default function More({
         <p className="note">System follows your iPhone's setting, switching to dark at night if you've set it to.</p>
       </section>
 
-      <p className="note">Recipes and backups will appear here in later stages.</p>
+      <p className="note">Backups will appear here in the final stage.</p>
     </div>
   )
 }

@@ -13,6 +13,8 @@ import More from './screens/More'
 import Favorites from './screens/Favorites'
 import AISettings from './screens/AISettings'
 import Weight from './screens/Weight'
+import Recipes from './screens/Recipes'
+import FoodDatabases from './screens/FoodDatabases'
 
 const isStandalone = () =>
   window.matchMedia('(display-mode: standalone)').matches ||
@@ -30,7 +32,7 @@ export default function App() {
   const [today, setToday] = useState(todayISO())
   const [todayTabDate, setTodayTabDate] = useState(today)
   const [historyDay, setHistoryDay] = useState<string | null>(null)
-  const [moreView, setMoreView] = useState<'favorites' | 'ai' | null>(null)
+  const [moreView, setMoreView] = useState<'favorites' | 'ai' | 'recipes' | 'fooddb' | null>(null)
 
   useEffect(() => {
     requestPersistence()
@@ -114,12 +116,18 @@ export default function App() {
           <Favorites onBack={() => setMoreView(null)} />
         ) : moreView === 'ai' ? (
           <AISettings onBack={() => setMoreView(null)} />
+        ) : moreView === 'recipes' ? (
+          <Recipes onBack={() => setMoreView(null)} />
+        ) : moreView === 'fooddb' ? (
+          <FoodDatabases onBack={() => setMoreView(null)} />
         ) : (
           <More
             profile={profile}
             onEditGoal={() => setEditingGoal(true)}
             onOpenFavorites={() => setMoreView('favorites')}
             onOpenAI={() => setMoreView('ai')}
+            onOpenRecipes={() => setMoreView('recipes')}
+            onOpenFoodDb={() => setMoreView('fooddb')}
           />
         ))}
       <TabBar tab={tab} onChange={switchTab} />

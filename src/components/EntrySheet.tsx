@@ -9,6 +9,7 @@ import { estimateFromPhoto, estimateFromText, explain, preparePhoto, type FoodEs
 import { NumberField, Seg } from './ui'
 import Sheet from './Sheet'
 import { CameraIcon, PhotosIcon, SparkleIcon, StarIcon } from './icons'
+import { BarcodeScan, FoodSearch, type Picked } from './FoodPick'
 
 type Props = {
   /** Existing entry to edit, or undefined to add a new one. */
@@ -20,7 +21,7 @@ type Props = {
   startWith?: 'describe' | 'photo'
 }
 
-type Mode = 'describe' | 'photo'
+type Mode = 'describe' | 'photo' | 'scan' | 'search'
 type AIState = { kind: 'idle' } | { kind: 'loading' } | { kind: 'error'; message: string }
 
 const opt = (n: number | '') => (n === '' ? undefined : n)
@@ -57,6 +58,7 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
 
   const favorites = useLiveQuery(() => db.favorites.orderBy('description').toArray()) ?? []
   const recents = useLiveQuery(() => db.entries.orderBy('createdAt').reverse().limit(500).toArray()) ?? []
+  const recipes = useLiveQuery(() => db.recipes.toArray()) ?? []
 
   // Star: is this food saved as a favorite? `null` = she hasn't touched it, so follow the data.
   const [starTouched, setStarTouched] = useState<boolean | null>(null)
@@ -66,9 +68,9 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
   const suggestions = useMemo(
     () =>
       showSuggest && mode === 'describe' && !draft
-        ? suggest(description, favorites, recents.filter((r) => r.id !== entry?.id))
+        ? suggest(description, favorites, recents.filter((r) => r.id !== entry?.id), 5, recipes)
         : [],
-    [description, favorites, recents, showSuggest, entry?.id, mode, draft],
+    [description, favorites, recents, recipes, showSuggest, entry?.id, mode, draft],
   )
 
   const valid = description.trim().length > 0 && calories !== '' && calories >= 0 && calories < 10000 && !!d
@@ -81,9 +83,22 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
     setCarbs(num(s.carbs))
     setFat(num(s.fat))
     if (s.protein !== undefined) setMacrosOpen(true)
-    setSource(s.favorite ? 'favorite' : 'manual')
+    setSource(s.recipe ? 'recipe' : s.favorite ? 'favorite' : 'manual')
     setStarTouched(s.favorite ? true : null)
     setShowSuggest(false)
+  }
+
+  function usePicked(p: Picked, from: 'barcode' | 'search') {
+    setDraft(null)
+    setDescription(p.description)
+    setCalories(p.calories)
+    setProtein(num(p.protein))
+    setCarbs(num(p.carbs))
+    setFat(num(p.fat))
+    if (p.protein !== undefined) setMacrosOpen(true)
+    setSource(from)
+    setShowSuggest(false)
+    setMode('describe')
   }
 
   function applyEstimate(r: FoodEstimate, from: 'ai-text' | 'ai-photo') {
@@ -190,9 +205,14 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
           options={[
             { value: 'describe', label: 'Describe' },
             { value: 'photo', label: 'Photo' },
+            { value: 'scan', label: 'Scan' },
+            { value: 'search', label: 'Search' },
           ]}
         />
       )}
+
+      {mode === 'scan' && <BarcodeScan onUse={(p) => usePicked(p, 'barcode')} />}
+      {mode === 'search' && <FoodSearch onUse={(p) => usePicked(p, 'search')} />}
 
       {/* ---------- Photo ---------- */}
       <input
@@ -228,7 +248,7 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
           </button>
         </div>
       )}
-      {photoUrl && (
+      {photoUrl && (mode === 'photo' || mode === 'describe' || !isNew) && (
         <div className="photo-wrap">
           <img className="entry-photo" src={photoUrl} alt="Photo of this meal" />
           {loading && <div className="photo-scan" aria-hidden />}
@@ -256,7 +276,7 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
       )}
 
       {/* ---------- Description ---------- */}
-      {(mode === 'describe' || draft || !isNew || (mode === 'photo' && photoUrl)) && (
+      {(mode === 'describe' || !isNew || (mode === 'photo' && (photoUrl || draft))) && (
         <div className="field">
           <div className="row between">
             <label htmlFor="desc" style={{ fontWeight: 600, fontSize: 15 }}>
@@ -290,7 +310,13 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
             <div className="suggest" role="listbox" aria-label="Suggestions">
               {suggestions.map((s) => (
                 <button key={s.key} type="button" role="option" className="suggest-item" onClick={() => fill(s)}>
-                  {s.favorite ? <StarIcon filled small /> : <span className="recent-dot" aria-hidden />}
+                  {s.favorite ? (
+                    <StarIcon filled small />
+                  ) : s.recipe ? (
+                    <span className="recipe-tag" aria-label="Recipe">R</span>
+                  ) : (
+                    <span className="recent-dot" aria-hidden />
+                  )}
                   <span className="grow">{s.description}</span>
                   <span className="num muted">{fmt(s.calories)}</span>
                 </button>
@@ -377,7 +403,7 @@ export default function EntrySheet({ entry, date, meal, onClose, startWith = 'de
         </div>
       )}
 
-      {(mode === 'describe' || draft || !isNew || photoUrl) && (
+      {(mode === 'describe' || !isNew || (mode === 'photo' && (photoUrl || draft))) && (
         <>
           <NumberField label="Calories" value={calories} onChange={setCalories} suffix="cal" />
 

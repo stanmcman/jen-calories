@@ -60,6 +60,9 @@ export interface Recipe {
   servings: number
   ingredients: Ingredient[]
   totalCalories: number
+  /** The recipe as she pasted or typed it. */
+  text?: string
+  note?: string
   createdAt: number
 }
 
